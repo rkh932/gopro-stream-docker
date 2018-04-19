@@ -2,21 +2,27 @@
 #  Sets up WiFi streaming from a GoPro to QGroundControl.
 #  The host machine should already be connected to the GoPro via WiFi 
 #  and should be running QGroundControl.
+FROM ubuntu
 
 LABEL maintainer="rkh932@mocs.utc.edu"
 
-FROM ubuntu
-
 # Install ffplay,ffmpeg,curl
-RUN apt-get update && apt-get install -y ffmpeg curl
+RUN apt-get update && apt-get install -y ffmpeg curl iputils-ping nano iproute2 net-tools
 
 # Add the script which will automatically setup the streaming processes
-ADD ./goGPQGC.sh ~
+ADD ./goGPQGC.sh /home/goGPQGC.sh
 
 # Expose the required ports
-EXPOSE 8554/udp # Port for incoming GoPro Video Stream
-EXPOSE 8080/tcp # Port for GoPro REST API (Control)
-EXPOSE 5000/udp # Port that video will be pushed to QGroundControl on
+# Port for incoming GoPro Video Stream
+EXPOSE 8554/udp 
+
+# Port for GoPro REST API (Control)
+EXPOSE 80/tcp 
+
+# Port that video will be pushed to QGroundControl on
+EXPOSE 5000/udp 
 
 # Setup the script to run automatically when the container is launched
-CMD ["source ~/goGPQGC.sh",""]
+RUN chmod 555 /home/goGPQGC.sh
+CMD /home/goGPQGC.sh
+
